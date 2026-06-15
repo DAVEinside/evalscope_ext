@@ -1,0 +1,337 @@
+{
+  "meta": {
+    "pretty_name": "AIR-Bench-Chat",
+    "dataset_id": "evalscope/AIR-Bench",
+    "paper_url": "https://aclanthology.org/2024.acl-long.109/",
+    "tags": [
+      "Audio",
+      "QA",
+      "InstructionFollowing"
+    ],
+    "metrics": [
+      "gpt_score",
+      "win_rate"
+    ],
+    "few_shot_num": 0,
+    "eval_split": "test",
+    "train_split": "",
+    "subset_list": [
+      "speech_QA",
+      "speech_dialogue_QA",
+      "sound_QA",
+      "sound_generation_QA",
+      "music_QA",
+      "music_generation_analysis_QA",
+      "speech_and_sound_QA",
+      "speech_and_music_QA"
+    ],
+    "description": "\n## Overview\n\nAIR-Bench Chat is the generative half of [AIR-Bench](https://arxiv.org/abs/2402.07729) (Audio InstRuction Benchmark, ACL 2024 main conference) — the first instruction-following benchmark for large audio-language models (LALMs), covering **human speech, natural sounds and music**. It contains roughly 2k open-ended audio QA pairs covering speech, sound, music and mixed-audio scenes; responses are graded by a GPT-4 judge against a reference answer.\n\n## Task Description\n\n- **Task Type**: Open-ended audio question answering.\n- **Input**: An audio clip plus a free-form question.\n- **Output**: A textual answer evaluated against the reference response.\n\n## Categories (8 tasks → 5 reported categories)\n\nThe 8 Chat tasks are aggregated by the official `cal_score.py` into five categories:\n\n- `speech`: `speech_QA`, `speech_dialogue_QA`\n- `sound`: `sound_QA`, `sound_generation_QA`\n- `music`: `music_QA`, `music_generation_analysis_QA`\n- `speech_and_sound`: `speech_and_sound_QA`\n- `speech_and_music`: `speech_and_music_QA`\n\nThe paper's **Mixed-audio = mean(speech_and_sound, speech_and_music)**.\n\n## Dataset Access\n\n- The dataset is hosted on ModelScope: [`evalscope/AIR-Bench-Dataset`](https://modelscope.cn/datasets/evalscope/AIR-Bench-Dataset). It uses an *audiofolder + JSON metadata* layout. evalscope downloads it lazily via `modelscope.dataset_snapshot_download` on first run; the full release is ~49 GB, so it is recommended to limit which tasks are pulled via `extra_params`.\n- If the dataset is already on disk, pass `dataset_args={'air_bench_chat': {'local_path': '/path/to/AIR-Bench-Dataset'}}`; the local root should contain `Chat/`.\n\n## Evaluation Protocol\n\n- The judge LLM (default: GPT-4) receives the question, the textual audio description (`meta_info` from the dataset), the reference answer (`answer_gt`), and the model's response. It outputs a single line with two integer scores in `[1, 10]`.\n- To remove position bias, every sample is judged twice with the order of reference and prediction swapped, then averaged. This mirrors `cal_score.py` in the official repository — disable it via `extra_params={'do_swap': False}` to halve judge cost.\n- Reported metric `gpt_score` is the model's mean judge score; `win_rate` records how often the model strictly beats the reference.\n\n```{warning}\nThe official leaderboard uses `gpt-4-0125-preview` as the judge model. If that exact snapshot is unavailable, use an available GPT-4-class judge; absolute scores can drift versus the published numbers because the judge model changed.\n```\n\n## Implementation Notes\n\n- The judge model is selected via `--judge-model-args`; ensure the model id supports long contexts (`meta_info` may exceed 4k tokens for dialogue tasks).\n- Set `extra_params={'tasks': [...]}` to evaluate only specific Chat task names — useful for partial runs.\n",
+    "prompt_template": "{question}",
+    "system_prompt": "",
+    "few_shot_prompt_template": "",
+    "aggregation": "mean",
+    "extra_params": {
+      "tasks": {
+        "type": "list",
+        "description": "Optional list of Chat task names to evaluate (subset of ['music_QA', 'music_generation_analysis_QA', 'sound_QA', 'sound_generation_QA', 'speech_QA', 'speech_and_music_QA', 'speech_and_sound_QA', 'speech_dialogue_QA']). Defaults to all tasks.",
+        "value": null
+      },
+      "do_swap": {
+        "type": "bool",
+        "description": "When True (default), each sample is judged twice with the order of reference vs. prediction swapped, then scores are averaged. Disable to halve judge cost at the price of position bias.",
+        "value": true
+      }
+    },
+    "sandbox_config": {},
+    "category": "vlm"
+  },
+  "statistics": {
+    "total_samples": 2200,
+    "subset_stats": [
+      {
+        "name": "speech_QA",
+        "sample_count": 400,
+        "prompt_length_mean": 64.33,
+        "prompt_length_min": 23,
+        "prompt_length_max": 148,
+        "prompt_length_std": 28.48,
+        "target_length_mean": 74.0,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 400,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "mp3",
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "speech_dialogue_QA",
+        "sample_count": 400,
+        "prompt_length_mean": 77.03,
+        "prompt_length_min": 29,
+        "prompt_length_max": 206,
+        "prompt_length_std": 26.74,
+        "target_length_mean": 85.14,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 400,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "sound_QA",
+        "sample_count": 400,
+        "prompt_length_mean": 73.29,
+        "prompt_length_min": 17,
+        "prompt_length_max": 166,
+        "prompt_length_std": 31.89,
+        "target_length_mean": 59.26,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 400,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "sound_generation_QA",
+        "sample_count": 100,
+        "prompt_length_mean": 222.52,
+        "prompt_length_min": 130,
+        "prompt_length_max": 423,
+        "prompt_length_std": 56.74,
+        "target_length_mean": 863.63,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 100,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "music_QA",
+        "sample_count": 400,
+        "prompt_length_mean": 57.54,
+        "prompt_length_min": 24,
+        "prompt_length_max": 202,
+        "prompt_length_std": 29.09,
+        "target_length_mean": 39.14,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 400,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "music_generation_analysis_QA",
+        "sample_count": 100,
+        "prompt_length_mean": 267.52,
+        "prompt_length_min": 148,
+        "prompt_length_max": 395,
+        "prompt_length_std": 51.7,
+        "target_length_mean": 1068.28,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 100,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "speech_and_sound_QA",
+        "sample_count": 200,
+        "prompt_length_mean": 63.98,
+        "prompt_length_min": 25,
+        "prompt_length_max": 127,
+        "prompt_length_std": 16.05,
+        "target_length_mean": 34.05,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 200,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      },
+      {
+        "name": "speech_and_music_QA",
+        "sample_count": 200,
+        "prompt_length_mean": 69.37,
+        "prompt_length_min": 32,
+        "prompt_length_max": 127,
+        "prompt_length_std": 16.51,
+        "target_length_mean": 29.17,
+        "multimodal": {
+          "has_images": false,
+          "has_audio": true,
+          "has_video": false,
+          "audio": {
+            "count_total": 200,
+            "count_per_sample": {
+              "min": 1,
+              "max": 1,
+              "mean": 1
+            },
+            "duration": null,
+            "sample_rates": [],
+            "formats": [
+              "wav"
+            ]
+          }
+        }
+      }
+    ],
+    "prompt_length": {
+      "mean": 83.89,
+      "min": 17,
+      "max": 423,
+      "std": 60.13
+    },
+    "target_length_mean": 140.38,
+    "computed_at": "2026-05-13T18:37:29.545199",
+    "multimodal": {
+      "has_images": false,
+      "has_audio": true,
+      "has_video": false,
+      "audio": {
+        "count_total": 2200,
+        "count_per_sample": {
+          "min": 1,
+          "max": 1,
+          "mean": 1
+        },
+        "duration": null,
+        "sample_rates": [],
+        "formats": [
+          "mp3",
+          "wav"
+        ]
+      }
+    }
+  },
+  "sample_example": {
+    "data": {
+      "input": [
+        {
+          "id": "5781ee73",
+          "content": [
+            {
+              "audio": "/root/.cache/modelscope/hub/datasets/evalscope/AIR-Bench-Dataset/Chat/speech_QA_iemocap/Ses01F_script01_1_M025.wav",
+              "format": "wav"
+            },
+            {
+              "text": "Who is the speaker addressing at the end of the speech?"
+            }
+          ]
+        }
+      ],
+      "target": "The speaker is addressing Mom at the end of the speech.",
+      "id": 0,
+      "group_id": 0,
+      "subset_key": "speech_QA",
+      "metadata": {
+        "uniq_id": 400,
+        "task_name": "speech_QA",
+        "dataset_name": "iemocap",
+        "category": "speech",
+        "meta_info": "{'emotion': 'neutral', 'gender': 'male', 'transcription': \"And then we'll thrash it out with father. Okay Mom? Don't avoid me.\"}",
+        "question": "Who is the speaker addressing at the end of the speech?"
+      }
+    },
+    "subset": "speech_QA",
+    "truncated": false
+  },
+  "readme": {
+    "en": "# AIR-Bench-Chat\n\n\n## Overview\n\nAIR-Bench Chat is the generative half of [AIR-Bench](https://arxiv.org/abs/2402.07729) (Audio InstRuction Benchmark, ACL 2024 main conference) — the first instruction-following benchmark for large audio-language models (LALMs), covering **human speech, natural sounds and music**. It contains roughly 2k open-ended audio QA pairs covering speech, sound, music and mixed-audio scenes; responses are graded by a GPT-4 judge against a reference answer.\n\n## Task Description\n\n- **Task Type**: Open-ended audio question answering.\n- **Input**: An audio clip plus a free-form question.\n- **Output**: A textual answer evaluated against the reference response.\n\n## Categories (8 tasks → 5 reported categories)\n\nThe 8 Chat tasks are aggregated by the official `cal_score.py` into five categories:\n\n- `speech`: `speech_QA`, `speech_dialogue_QA`\n- `sound`: `sound_QA`, `sound_generation_QA`\n- `music`: `music_QA`, `music_generation_analysis_QA`\n- `speech_and_sound`: `speech_and_sound_QA`\n- `speech_and_music`: `speech_and_music_QA`\n\nThe paper's **Mixed-audio = mean(speech_and_sound, speech_and_music)**.\n\n## Dataset Access\n\n- The dataset is hosted on ModelScope: [`evalscope/AIR-Bench-Dataset`](https://modelscope.cn/datasets/evalscope/AIR-Bench-Dataset). It uses an *audiofolder + JSON metadata* layout. evalscope downloads it lazily via `modelscope.dataset_snapshot_download` on first run; the full release is ~49 GB, so it is recommended to limit which tasks are pulled via `extra_params`.\n- If the dataset is already on disk, pass `dataset_args={'air_bench_chat': {'local_path': '/path/to/AIR-Bench-Dataset'}}`; the local root should contain `Chat/`.\n\n## Evaluation Protocol\n\n- The judge LLM (default: GPT-4) receives the question, the textual audio description (`meta_info` from the dataset), the reference answer (`answer_gt`), and the model's response. It outputs a single line with two integer scores in `[1, 10]`.\n- To remove position bias, every sample is judged twice with the order of reference and prediction swapped, then averaged. This mirrors `cal_score.py` in the official repository — disable it via `extra_params={'do_swap': False}` to halve judge cost.\n- Reported metric `gpt_score` is the model's mean judge score; `win_rate` records how often the model strictly beats the reference.\n\n```{warning}\nThe official leaderboard uses `gpt-4-0125-preview` as the judge model. If that exact snapshot is unavailable, use an available GPT-4-class judge; absolute scores can drift versus the published numbers because the judge model changed.\n```\n\n## Implementation Notes\n\n- The judge model is selected via `--judge-model-args`; ensure the model id supports long contexts (`meta_info` may exceed 4k tokens for dialogue tasks).\n- Set `extra_params={'tasks': [...]}` to evaluate only specific Chat task names — useful for partial runs.\n\n\n## Properties\n\n| Property | Value |\n|----------|-------|\n| **Benchmark Name** | `air_bench_chat` |\n| **Dataset ID** | [evalscope/AIR-Bench](https://modelscope.cn/datasets/evalscope/AIR-Bench/summary) |\n| **Paper** | [Paper](https://aclanthology.org/2024.acl-long.109/) |\n| **Tags** | `Audio`, `InstructionFollowing`, `QA` |\n| **Metrics** | `gpt_score`, `win_rate` |\n| **Default Shots** | 0-shot |\n| **Evaluation Split** | `test` |\n\n\n## Data Statistics\n\n| Metric | Value |\n|--------|-------|\n| Total Samples | 2,200 |\n| Prompt Length (Mean) | 83.89 chars |\n| Prompt Length (Min/Max) | 17 / 423 chars |\n\n**Per-Subset Statistics:**\n\n| Subset | Samples | Prompt Mean | Prompt Min | Prompt Max |\n|--------|---------|-------------|------------|------------|\n| `speech_QA` | 400 | 64.33 | 23 | 148 |\n| `speech_dialogue_QA` | 400 | 77.03 | 29 | 206 |\n| `sound_QA` | 400 | 73.29 | 17 | 166 |\n| `sound_generation_QA` | 100 | 222.52 | 130 | 423 |\n| `music_QA` | 400 | 57.54 | 24 | 202 |\n| `music_generation_analysis_QA` | 100 | 267.52 | 148 | 395 |\n| `speech_and_sound_QA` | 200 | 63.98 | 25 | 127 |\n| `speech_and_music_QA` | 200 | 69.37 | 32 | 127 |\n\n**Audio Statistics:**\n\n| Metric | Value |\n|--------|-------|\n| Total Audio Files | 2,200 |\n| Audio per Sample | min: 1, max: 1, mean: 1 |\n| Formats | mp3, wav |\n\n\n## Sample Example\n\n**Subset**: `speech_QA`\n\n```json\n{\n  \"input\": [\n    {\n      \"id\": \"5781ee73\",\n      \"content\": [\n        {\n          \"audio\": \"/root/.cache/modelscope/hub/datasets/evalscope/AIR-Bench-Dataset/Chat/speech_QA_iemocap/Ses01F_script01_1_M025.wav\",\n          \"format\": \"wav\"\n        },\n        {\n          \"text\": \"Who is the speaker addressing at the end of the speech?\"\n        }\n      ]\n    }\n  ],\n  \"target\": \"The speaker is addressing Mom at the end of the speech.\",\n  \"id\": 0,\n  \"group_id\": 0,\n  \"subset_key\": \"speech_QA\",\n  \"metadata\": {\n    \"uniq_id\": 400,\n    \"task_name\": \"speech_QA\",\n    \"dataset_name\": \"iemocap\",\n    \"category\": \"speech\",\n    \"meta_info\": \"{'emotion': 'neutral', 'gender': 'male', 'transcription': \\\"And then we'll thrash it out with father. Okay Mom? Don't avoid me.\\\"}\",\n    \"question\": \"Who is the speaker addressing at the end of the speech?\"\n  }\n}\n```\n\n## Prompt Template\n\n**Prompt Template:**\n```text\n{question}\n```\n\n## Extra Parameters\n\n| Parameter | Type | Default | Description |\n|-----------|------|---------|-------------|\n| `tasks` | `list` | `None` | Optional list of Chat task names to evaluate (subset of ['music_QA', 'music_generation_analysis_QA', 'sound_QA', 'sound_generation_QA', 'speech_QA', 'speech_and_music_QA', 'speech_and_sound_QA', 'speech_dialogue_QA']). Defaults to all tasks. |\n| `do_swap` | `bool` | `True` | When True (default), each sample is judged twice with the order of reference vs. prediction swapped, then scores are averaged. Disable to halve judge cost at the price of position bias. |\n\n## Usage\n\n### Using CLI\n\n```bash\nevalscope eval \\\n    --model YOUR_MODEL \\\n    --api-url OPENAI_API_COMPAT_URL \\\n    --api-key EMPTY_TOKEN \\\n    --datasets air_bench_chat \\\n    --limit 10  # Remove this line for formal evaluation\n```\n\n### Using Python\n\n```python\nfrom evalscope import run_task\nfrom evalscope.config import TaskConfig\n\ntask_cfg = TaskConfig(\n    model='YOUR_MODEL',\n    api_url='OPENAI_API_COMPAT_URL',\n    api_key='EMPTY_TOKEN',\n    datasets=['air_bench_chat'],\n    dataset_args={\n        'air_bench_chat': {\n            # subset_list: ['speech_QA', 'speech_dialogue_QA', 'sound_QA']  # optional, evaluate specific subsets\n            # extra_params: {}  # uses default extra parameters\n        }\n    },\n    limit=10,  # Remove this line for formal evaluation\n)\n\nrun_task(task_cfg=task_cfg)\n```\n\n\n",
+    "zh": "# AIR-Bench-Chat\n\n\n## 概述\n\nAIR-Bench Chat 是 [AIR-Bench](https://arxiv.org/abs/2402.07729)（Audio InstRuction Benchmark，ACL 2024 主会）的生成部分——这是首个面向大型音频-语言模型（LALMs）的指令遵循基准测试，涵盖**人类语音、自然声音和音乐**。该数据集包含约 2,000 个开放式音频问答对，覆盖语音、声音、音乐及混合音频场景；模型的回答由 GPT-4 作为裁判，对照参考答案进行评分。\n\n## 任务描述\n\n- **任务类型**：开放式音频问答。\n- **输入**：一段音频片段加一个自由形式的问题。\n- **输出**：一段文本答案，将根据参考答案进行评估。\n\n## 类别（8 项任务 → 5 个报告类别）\n\n官方 `cal_score.py` 脚本将 8 项 Chat 任务聚合为以下五个类别：\n\n- `speech`（语音）: `speech_QA`, `speech_dialogue_QA`\n- `sound`（声音）: `sound_QA`, `sound_generation_QA`\n- `music`（音乐）: `music_QA`, `music_generation_analysis_QA`\n- `speech_and_sound`（语音与声音）: `speech_and_sound_QA`\n- `speech_and_music`（语音与音乐）: `speech_and_music_QA`\n\n论文中的 **Mixed-audio（混合音频）= mean(speech_and_sound, speech_and_music)**。\n\n## 数据集获取\n\n- 该数据集托管在 ModelScope 上：[`evalscope/AIR-Bench-Dataset`](https://modelscope.cn/datasets/evalscope/AIR-Bench-Dataset)。采用 *audiofolder + JSON 元数据* 的布局。evalscope 在首次运行时通过 `modelscope.dataset_snapshot_download` 按需下载；完整数据集约 49 GB，建议通过 `extra_params` 参数限制仅拉取所需任务。\n- 如果数据集已存在于本地磁盘，请传入 `dataset_args={'air_bench_chat': {'local_path': '/path/to/AIR-Bench-Dataset'}}`；本地根目录应包含 `Chat/` 文件夹。\n\n## 评估协议\n\n- 裁判大语言模型（默认为 GPT-4）接收问题、音频的文本描述（来自数据集的 `meta_info`）、参考答案（`answer_gt`）以及模型的回答，并输出一行包含两个 `[1, 10]` 范围内的整数分数。\n- 为消除位置偏差，每个样本会被评判两次（交换参考答案与模型预测的顺序），然后取平均分。此做法与官方仓库中的 `cal_score.py` 一致；可通过设置 `extra_params={'do_swap': False}` 禁用该行为，以节省一半的裁判成本。\n- 报告指标 `gpt_score` 为模型的平均裁判分数；`win_rate` 记录模型严格优于参考答案的频率。\n\n```{warning}\n官方排行榜使用 `gpt-4-0125-preview` 作为裁判模型。如果该特定快照不可用，请使用其他可用的 GPT-4 级别裁判模型；由于裁判模型变更，绝对分数可能与已发表结果存在偏差。\n```\n\n## 实现说明\n\n- 通过 `--judge-model-args` 指定裁判模型；请确保所选模型支持长上下文（对话类任务的 `meta_info` 可能超过 4k tokens）。\n- 设置 `extra_params={'tasks': [...]}` 可仅评估指定的 Chat 任务名称——适用于部分运行。\n\n## 属性\n\n| 属性 | 值 |\n|----------|-------|\n| **基准测试名称** | `air_bench_chat` |\n| **数据集 ID** | [evalscope/AIR-Bench](https://modelscope.cn/datasets/evalscope/AIR-Bench/summary) |\n| **论文** | [Paper](https://aclanthology.org/2024.acl-long.109/) |\n| **标签** | `Audio`, `InstructionFollowing`, `QA` |\n| **指标** | `gpt_score`, `win_rate` |\n| **默认示例数** | 0-shot |\n| **评估分割** | `test` |\n\n\n## 数据统计\n\n| 指标 | 值 |\n|--------|-------|\n| 总样本数 | 2,200 |\n| 提示词长度（平均） | 83.89 字符 |\n| 提示词长度（最小/最大） | 17 / 423 字符 |\n\n**各子集统计信息：**\n\n| 子集 | 样本数 | 提示平均长度 | 提示最小长度 | 提示最大长度 |\n|--------|---------|-------------|------------|------------|\n| `speech_QA` | 400 | 64.33 | 23 | 148 |\n| `speech_dialogue_QA` | 400 | 77.03 | 29 | 206 |\n| `sound_QA` | 400 | 73.29 | 17 | 166 |\n| `sound_generation_QA` | 100 | 222.52 | 130 | 423 |\n| `music_QA` | 400 | 57.54 | 24 | 202 |\n| `music_generation_analysis_QA` | 100 | 267.52 | 148 | 395 |\n| `speech_and_sound_QA` | 200 | 63.98 | 25 | 127 |\n| `speech_and_music_QA` | 200 | 69.37 | 32 | 127 |\n\n**音频统计信息：**\n\n| 指标 | 值 |\n|--------|-------|\n| 音频文件总数 | 2,200 |\n| 每样本音频数量 | 最小: 1, 最大: 1, 平均: 1 |\n| 格式 | mp3, wav |\n\n\n## 样例示例\n\n**子集**: `speech_QA`\n\n```json\n{\n  \"input\": [\n    {\n      \"id\": \"5781ee73\",\n      \"content\": [\n        {\n          \"audio\": \"/root/.cache/modelscope/hub/datasets/evalscope/AIR-Bench-Dataset/Chat/speech_QA_iemocap/Ses01F_script01_1_M025.wav\",\n          \"format\": \"wav\"\n        },\n        {\n          \"text\": \"Who is the speaker addressing at the end of the speech?\"\n        }\n      ]\n    }\n  ],\n  \"target\": \"The speaker is addressing Mom at the end of the speech.\",\n  \"id\": 0,\n  \"group_id\": 0,\n  \"subset_key\": \"speech_QA\",\n  \"metadata\": {\n    \"uniq_id\": 400,\n    \"task_name\": \"speech_QA\",\n    \"dataset_name\": \"iemocap\",\n    \"category\": \"speech\",\n    \"meta_info\": \"{'emotion': 'neutral', 'gender': 'male', 'transcription': \\\"And then we'll thrash it out with father. Okay Mom? Don't avoid me.\\\"}\",\n    \"question\": \"Who is the speaker addressing at the end of the speech?\"\n  }\n}\n```\n\n## 提示模板\n\n**提示模板：**\n```text\n{question}\n```\n\n## 额外参数\n\n| 参数 | 类型 | 默认值 | 描述 |\n|-----------|------|---------|-------------|\n| `tasks` | `list` | `None` | 可选的 Chat 任务名称列表（子集包括 ['music_QA', 'music_generation_analysis_QA', 'sound_QA', 'sound_generation_QA', 'speech_QA', 'speech_and_music_QA', 'speech_and_sound_QA', 'speech_dialogue_QA']）。默认评估所有任务。 |\n| `do_swap` | `bool` | `True` | 若为 True（默认），每个样本会评判两次（交换参考答案与模型预测的顺序），然后取平均分。禁用可节省一半裁判成本，但会引入位置偏差。 |\n\n## 使用方法\n\n### 使用 CLI\n\n```bash\nevalscope eval \\\n    --model YOUR_MODEL \\\n    --api-url OPENAI_API_COMPAT_URL \\\n    --api-key EMPTY_TOKEN \\\n    --datasets air_bench_chat \\\n    --limit 10  # 正式评估时请删除此行\n```\n\n### 使用 Python\n\n```python\nfrom evalscope import run_task\nfrom evalscope.config import TaskConfig\n\ntask_cfg = TaskConfig(\n    model='YOUR_MODEL',\n    api_url='OPENAI_API_COMPAT_URL',\n    api_key='EMPTY_TOKEN',\n    datasets=['air_bench_chat'],\n    dataset_args={\n        'air_bench_chat': {\n            # subset_list: ['speech_QA', 'speech_dialogue_QA', 'sound_QA']  # 可选，仅评估指定子集\n            # extra_params: {}  # 使用默认额外参数\n        }\n    },\n    limit=10,  # 正式评估时请删除此行\n)\n\nrun_task(task_cfg=task_cfg)\n```",
+    "content_hash": "8a9f17afdfbb2a77b2c1c74a160ac3a6",
+    "needs_translation": false
+  },
+  "updated_at": "2026-05-18T10:23:16.641619",
+  "translation_updated_at": "2026-05-18T10:23:22"
+}
